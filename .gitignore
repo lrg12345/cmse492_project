@@ -16,3 +16,4 @@ data/raw/
 
 # Secrets
 .env
+.DS_Store
