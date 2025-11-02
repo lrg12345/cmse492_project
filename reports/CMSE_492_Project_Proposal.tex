@@ -1,0 +1,450 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CMSE 492 Final Project Report Template
+% Using RevTeX 4.2 for professional scientific document formatting
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[aps,prl,preprint,groupedaddress]{revtex4-2}
+
+% Essential packages
+\usepackage{graphicx}       % For including figures
+\usepackage{dcolumn}        % Align table columns on decimal point
+\usepackage{bm}             % Bold math symbols
+\usepackage{hyperref}       % Hyperlinks
+\usepackage{amsmath}        % Advanced math features
+\usepackage{amssymb}        % Math symbols
+\usepackage{booktabs}       % Professional-looking tables
+\usepackage{float}          % Better float placement
+\usepackage{caption}        % Caption customization
+\usepackage{subcaption}     % Subfigures
+\usepackage{listings}       % Code listings (optional)
+\usepackage{xcolor}         % Colors
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=blue,
+}
+
+% Code listing setup (optional - uncomment if needed)
+% \lstset{
+%     basicstyle=\ttfamily\small,
+%     breaklines=true,
+%     frame=single,
+%     language=Python,
+%     showstringspaces=false,
+%     commentstyle=\color{green!50!black},
+%     keywordstyle=\color{blue},
+%     stringstyle=\color{red}
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DOCUMENT INFORMATION - FILL IN YOUR DETAILS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\title{Predicting the Inhibitory Effect of Small Molecules on Organic Anion Transporting Polypeptides}
+
+\author{Logan Garland}
+\email{garlan70@msu.edu}
+\affiliation{Department of Computational Mathematics, Science and Engineering\\
+Michigan State University, East Lansing, MI 48824}
+
+\date{\today}
+
+\begin{abstract}
+    Organic Anion Transporting Polypeptides (OATPs) are responsible for the hepatic uptake of a wide range of endogenous and foreign small molecules, including many drugs. While the types of molecules they interact with are well-established, the mechanism of this transport remains poorly understood. Many of these molecules have an inhibitory effect that prevents the transport of other molecules, which is often harmful or even fatal to the victim. These drug-drug interactions (DDIs) are difficult to predict, yet extremely dangerous. This model utilizes a neural network trained on molecular structures of the OATPs and small molecules and interactions to predict the inhibitory effect of small molecules on OATP1B1 based on wet lab data collected in 2012 characterizing the inhibitory potentials of a wide panel of endogenous molecules and drugs. The model can then be used to preemptively warn a user of OATP-mediated DDI potentials before administering or taking multiple medications.
+\end{abstract}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Background and Motivation}
+\label{sec:background}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Describe the problem/question you are attempting to answer. This section must answer the following questions:
+
+\begin{itemize}
+    \item Why is this problem/question important?
+    \item Who cares about this problem/question being solved/answered?
+    \item What are the consequences of solving this problem/answering this question?
+    \item What has been done so far to address this problem/question?
+    \item State very clearly what the desired outcome is. How can Machine Learning (ML) help achieve your goal and/or solve your problem?
+\end{itemize}
+
+[DDIs are not only extremely dangerous, but are a difficult challenge to predict in the drug discovery pipeline, costing both significant time and money to test for. This problem is further exacerbated in older populations who are frequently prescribed many potentially conflicting medications. Pharmacologists working in the drug discovery pipeline and medical professionals who must assess the risks of administering multiple potentially conflicting drugs would both significantly benefit from an OATP-mediated DDI predictive tool. This would not only save time and money in the drug discovery world, allowing for more lifesaving medications to be produced with fewer resources, but also provide a powerful tool for the assessment of OATP inhibiion predictions in hospitals. Significant research has already been done to address this problem, including solving OATP structures and using wet lab assays to manually produce inhibition data, which will be used to train this model. The desired outcome is a neural network machine learning model that uses computationally generated structure files of OATP-bound small molecules to predict how likely that small molecule is to inhibit the OATP.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data Description}
+\label{sec:data}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Describe your data and any issues there might be. This section should have clear answers to all these questions:
+
+\subsection{Data Origins}
+This does not mean ``I got the data from Kaggle.'' Instead, you should read the description and metadata of the dataset and report that. For example: ``The MNIST dataset consists of 60,000 images of handwritten digits written by 500 high school students in Bethesda. The dataset was originally assembled by the US Census Bureau in the 1990s.''
+
+[The wet lab OATP-ligand inhibiion dataset was collected by Karlgren et al. in 2012 at Uppsala University in Sweden.]
+
+\subsection{Dataset Characteristics}
+\begin{itemize}
+    \item Number of samples (rows): [225 different small molecules were investigated against OATP1B1, OATP1B3, and OATP2B1, however this tool will be for use with OATP1B1 only. Compounds are organized into four groups: Completely Overlapping Inhibitors, Partially Overlapping Inhibitors, Specific Inhibitors, and Non Inhibitors.]
+    \item Number of features (columns): [Inhibition percent, SD percent, MW, PSA, NNLogP, Charge, HB-donors, and HB-acceptors are all recorded for each molecule for a total of 8 descriptors. Inhibition percent will be the most important of them.]
+    \item Data types: [All features are numerical, except for Charge which is categorical.]
+    \item Target variable: [The target variable is inhibition percent of any compound.]
+\end{itemize}
+
+\subsection{Data Quality Analysis}
+
+\subsubsection{Missing Values}
+Are there missing values? What do you think is the missingness mechanism? Pattern? How did you arrive at this conclusion?
+
+[There are no missing values. The dataset is complete.]
+
+\subsubsection{Class Balance}
+Is the dataset balanced? What technique are you going to use to balance the dataset if needed?
+
+[There are about as many Non Inhibitors as the other three classes combined. Stratified sampling will be used for balancing.]
+
+\subsubsection{Statistical Summary}
+Show some statistics of the data: correlations, univariate and bivariate distributions, ranges of the data, outliers.
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figures/correlation_matrix.png}
+%     \caption{Correlation matrix of features.}
+%     \label{fig:correlation}
+% \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/correlation_matrix.png}
+    \caption{Correlation matrix showing linear relationships among molecular descriptors. Strong positive correlations are shown in red, while negative correlations are shown in blue.}
+    \label{fig:correlation}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/outlier_boxplots.png}
+    \caption{Boxplots showing the range and distribution of each numerical feature. Outliers are shown as individual points beyond the whiskers.}
+    \label{fig:outliers}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\linewidth]{figures/scatter_Inhib_pct_a_vs_MWd.png}
+    \includegraphics[width=0.48\linewidth]{figures/scatter_Inhib_pct_a_vs_PSAd.png}
+    \caption{Bivariate scatter plots showing relationships between inhibition percentage and key molecular descriptors.}
+    \label{fig:bivariate}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Summary statistics of numeric features in the dataset.}
+\label{tab:summary}
+\begin{tabular}{lrrrrr}
+\toprule
+Feature & Min & Max & Range & Mean & Std Dev \\
+\midrule
+Inhibition (\%) & 0.0 & 98.4 & 98.4 & 43.2 & 21.7 \\
+MW & 120.3 & 650.7 & 530.4 & 327.8 & 82.4 \\
+PSA & 20.1 & 240.5 & 220.4 & 95.7 & 45.2 \\
+NNLogP & -1.8 & 7.6 & 9.4 & 3.2 & 1.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preprocessing}
+\label{sec:preprocessing}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Describe the preprocessing steps and why you are doing these steps.
+
+\subsection{Data Splitting}
+How are you going to split the data and why did you choose it? Stratified splitting, random splitting, time series splitting? Recall that the splitting should happen before you do any EDA.
+
+[The data will be divided into 70 percent training, 15 percent validation, and 15 percent testing sets using a stratified random split. Inhibition percentages are first binned into low, medium, and high categories to preserve proportional representation across subsets. Stratified splitting prevents bias toward any inhibition range and ensures balanced evaluation. The split is performed before EDA or scaling to avoid data leakage.]
+
+\subsection{Feature Engineering}
+Describe any feature engineering techniques. For example: ``We used K-means clustering to create 5 clusters of the CA districts,'' or ``We created polynomials up to degree 10 for all the features.''
+
+[Key molecular descriptors (MW, PSA, LogP, charge, H-bond donors/acceptors) were retained as features. All were standardized to comparable scales. Interaction terms may be added later to capture nonlinear effects.]
+
+\subsection{Scaling, Transformation, and Encoding}
+Describe any scaling, transformation, encoding, or imputation techniques used.
+
+[All numerical features were standardized using z-score scaling to ensure equal contribution to the model. No categorical encoding was required, as all selected features are numeric. Missing or invalid entries were minimal and removed prior to scaling.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Machine Learning Task and Objective}
+\label{sec:ml_task}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This section focuses on the machine learning aspect of the project.
+
+\subsection{Why Machine Learning?}
+Describe why we need ML and how humans or current methods fail at this task.
+
+[Predicting OATP inhibition from molecular structure is complex and nonlinear, making it difficult to model with traditional rules or manual analysis. Machine learning can learn subtle relationships between molecular descriptors and inhibition outcomes, enabling faster and more accurate DDI predictions than experimental screening alone.]
+
+\subsection{Task Type}
+What type of ML task is this?
+
+\begin{itemize}
+    \item \textbf{Supervised Learning:}
+    \begin{itemize}
+        \item Regression: [Interpolation/Extrapolation]
+        \item Classification: [Binary/Multiclass/Multi-label/Multi-output]
+    \end{itemize}
+    \item \textbf{Unsupervised Learning:}
+    \begin{itemize}
+        \item Dimensionality Reduction
+        \item Clustering
+    \end{itemize}
+    \item \textbf{Reinforcement Learning:}
+    \begin{itemize}
+        \item [Value-based/Policy-based/Actor-critic/Policy-learning]
+    \end{itemize}
+\end{itemize}
+
+[This is a \textbf{supervised learning} problem formulated as a \textbf{regression task}. The model predicts a continuous inhibition percentage based on molecular descriptors, allowing interpolation across known chemical spaces and limited extrapolation to novel compounds.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Models}
+\label{sec:models}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Describe the machine learning models you will compare. You need at least three models in increasing order of complexity.
+
+\subsection{Model Selection}
+Describe the models you are going to use and how they will be evaluated. For example, for a regression task: Linear Regression with polynomial features and L2 regularizer, Gradient Boosted Random Forest, Deep Neural Network.
+
+\subsubsection{Model 1: [Linear Regression]}
+[A baseline linear model will quantify simple additive relationships between molecular descriptors and inhibition. It provides interpretability and a reference for more complex models.]
+
+\subsubsection{Model 2: [Random Forest]}
+[An ensemble tree-based model that captures nonlinear feature interactions without requiring prior scaling assumptions. It is robust to outliers and provides feature importance metrics.]
+
+\subsubsection{Model 3: [Neural Network]}
+[A fully connected feed-forward neural network with two hidden layers (ReLU activation, dropout regularization) will learn complex, nonlinear patterns across molecular properties. Its flexibility allows it to generalize beyond simple descriptor relationships.]
+
+\subsection{Regularization and Hyperparameter Tuning}
+Describe the regularization and hyperparameter tuning procedures if any.
+
+[Each model will undergo grid search–based hyperparameter tuning using 5-fold cross-validation. Linear regression will include L2 regularization (Ridge). Random Forest parameters such as tree depth and number of estimators will be optimized. For the neural network, learning rate, hidden layer size, and dropout rate will be tuned to balance bias and variance.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Training Methodology}
+\label{sec:training}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+For each model, describe how training is performed, write down the equation for the loss function, and any technique used to track the learning of your model and avoid over- and under-fitting.
+
+\textbf{Model 1 (Linear Regression):}
+Training minimizes the mean squared error with L2 regularization to prevent overfitting:
+\begin{equation}
+\mathcal{L}(\mathbf{w}) = \frac{1}{n}\sum_{i=1}^{n}(y_i - \mathbf{w}^T\mathbf{x}_i)^2 + \lambda||\mathbf{w}||_2^2
+\end{equation}
+
+\textbf{Model 2 (Random Forest Regressor):}
+Each decision tree minimizes the mean squared error over bootstrapped samples:
+\begin{equation}
+\mathcal{L} = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2
+\end{equation}
+Model performance is tracked using out-of-bag error to avoid overfitting.
+
+\textbf{Model 3 (Neural Network):}
+The network minimizes mean squared error via gradient descent with dropout regularization to reduce overfitting:
+\begin{equation}
+\mathcal{L}(\theta) = \frac{1}{n}\sum_{i=1}^{n}(y_i - f_\theta(\mathbf{x}_i))^2
+\end{equation}
+Training progress is monitored through validation loss and early stopping to prevent under- or overfitting.
+\subsection{Training Process}
+This section should include hyperparameter tuning, cross-validation, bootstrapping, etc. Include plots of learning curves or other metrics used to track the learning process.
+
+\subsection{Model Summary Table}
+
+\begin{table}[H]
+\centering
+\caption{Summary of models, parameters, and training methodology.}
+\label{tab:model_summary}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Model} & \textbf{Parameters} & \textbf{Hyperparameters} & \textbf{Loss Function} & \textbf{Regularization} \\ 
+\midrule
+Linear Regression & $\mathbf{w}, b$ & $\lambda = 0.01$ & MSE & L2 (Ridge) \\
+Random Forest Regressor & Tree splits, thresholds & n\_estimators=200, max\_depth=10 & MSE & Implicit via averaging \\
+Neural Network & Weights, biases ($\theta$) & lr=0.001, dropout=0.3, 2 hidden layers & MSE & Dropout, Early stopping \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Metrics}
+\label{sec:metrics}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Clearly define the metrics you will be using to evaluate the performance. How do you know that your model is doing well? Examples: RMSE, MSE, F1 Score, precision, recall, accuracy, AUC-ROC, etc.
+
+\subsection{Primary Metric}
+[The primary evaluation metric is the \textbf{Mean Squared Error (MSE)}. It penalizes larger deviations more strongly, making it suitable for measuring continuous inhibition prediction accuracy. A lower MSE indicates better model performance.]
+
+\subsection{Secondary Metrics}
+[Two secondary metrics will be reported:
+\textbf{Root Mean Squared Error (RMSE)} for interpretability in the same units as inhibition percentage, and \textbf{$R^2$ (Coefficient of Determination)} to measure how well the model explains variance in the data.]
+
+\begin{equation}
+\text{MSE} = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2
+\end{equation}
+
+\begin{equation}
+\text{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}
+\end{equation}
+
+\begin{equation}
+R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y}i)^2}{\sum{i=1}^{n}(y_i - \bar{y})^2}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Timeline and Milestones}
+\label{sec:timeline}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+A Gantt chart showing the overall timeline and major milestones to the project's completion.
+
+\includegraphics[width=\linewidth]{figures/gantt_cmse492.png}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results and Model Comparison}
+\label{sec:results}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Compare the different algorithms using the metrics defined above. Compare the algorithms on their difficulty in training (time and hardware resources). Explain your choice of best algorithm for the task.
+
+\subsection{Performance Comparison}
+
+\begin{table}[H]
+\centering
+\caption{Model performance metrics on test set.}
+\label{tab:performance}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Model} & \textbf{Metric 1} & \textbf{Metric 2} & \textbf{Metric 3} & \textbf{Metric 4} \\ 
+\midrule
+Model 1 & [value] & [value] & [value] & [value] \\
+Model 2 & [value] & [value] & [value] & [value] \\
+Model 3 & [value] & [value] & [value] & [value] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Computational Efficiency}
+
+\begin{table}[H]
+\centering
+\caption{Training and inference time for each model.}
+\label{tab:timing}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Model} & \textbf{Training Time} & \textbf{Inference Time} & \textbf{Hardware Used} \\ 
+\midrule
+Model 1 & [time] & [time] & [e.g., CPU] \\
+Model 2 & [time] & [time] & [e.g., CPU] \\
+Model 3 & [time] & [time] & [e.g., GPU] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Analysis and Discussion}
+Explain your choice of best algorithm for the task. Explain why some models perform better than others and/or why all the models are not performing well.
+
+[Your analysis here. Include figures comparing model performance if helpful.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Model Interpretation}
+\label{sec:interpretation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Once you have chosen the best model, you need to interpret and understand its outputs. This may include feature importance, Recursive Feature Elimination (RFE), SHAP values, partial dependence plots, etc.
+
+\subsection{Feature Importance}
+[Discuss which features are most important for your model's predictions.]
+
+% Example figure
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figures/feature_importance.png}
+%     \caption{Feature importance scores for the best model.}
+%     \label{fig:feature_importance}
+% \end{figure}
+
+\subsection{Model Behavior Analysis}
+[Discuss how your model makes predictions. Include visualizations such as SHAP plots, decision boundaries, or activation maps if applicable.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{sec:conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Summarize what you have done. Which is the best algorithm for the task and why? Did your algorithm achieve the desired score?
+
+\subsection{Summary of Findings}
+[Summarize your main findings and the best model.]
+
+\subsection{Limitations and Future Work}
+In addition, describe what went wrong and how you think you could solve the issues in the future.
+
+\subsection{Final Remarks}
+[Concluding thoughts on the project.]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGMENTS (Optional)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{acknowledgments}
+I would like to thank [names] for their help and support. This project was completed as part of CMSE 492 at Michigan State University.
+\end{acknowledgments}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REFERENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% You can use BibTeX for references. Create a .bib file and uncomment below:
+% \bibliography{references}
+
+% Or manually add references:
+\begin{thebibliography}{99}
+
+\bibitem{example1}
+Author Name,
+``Title of Paper,''
+\textit{Journal Name} \textbf{Volume}, Page (Year).
+
+\bibitem{example2}
+Author Name,
+``Title of Book,''
+Publisher (Year).
+
+% Add your references here
+
+\end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX (Optional)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+\section{Additional Figures and Tables}
+\label{app:additional}
+
+[Include any additional supporting material here.]
+
+\section{Code Availability}
+\label{app:code}
+
+The complete code for this project is available at: \url{https://github.com/yourusername/your-repo}
+
+\end{document}
