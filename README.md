@@ -6,6 +6,7 @@ This project predicts the inhibitory effect of small molecules on the liver tran
 
 ## Directory Structure
 cmse492_project/
+
 ├── README.md
 
 ├── .gitignore
