@@ -34,9 +34,44 @@ cmse492_project/
 
 ---
 
-## ⚙️ Setup & Installation
+## ⚙️ Setup, Installation, and Operation
 
 ### 1. Create the conda environment
-```bash
 conda create -n cmse492 python=3.11 -y
+
 conda activate cmse492
+
+### 2. Install Python dependencies
+pip install -r requirements.txt
+
+### 3. Running the SMILES models
+Each model can be trained by running its corresponding script in src/models/ 
+- python train_ridge.py
+- python train_random_forest.py
+- python train_mlp.py
+
+All models load:
+- X_smiles_morgan2048.npy
+- y_binary.npy
+- compound_names.npy
+
+These scripts output:
+- Test metrics (*_metrics.csv)
+- Test predictions (*_test_predictions.csv)
+- Performance plots (saved in figures/)
+
+### 4. Running the PLIP-GNN model
+The GNN operates on protein–ligand interaction graphs generated from PLIP XML files. Train the final GNN with:
+- python train_plip_gnn.py
+
+This produces:
+- gnn_plip_metrics.csv
+- gnn_plip_test_predictions.csv
+- ROC & PR curves in /figures
+
+Hyperparameter tuning for the GNN is implemented in:
+- python train_plip_gnn_sweep.py
+
+## Acknowledgments
+
+This work was performed as a final project for CMSE 492: Applied Machine Learning at Michigan State University.
