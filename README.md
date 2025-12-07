@@ -17,20 +17,20 @@ The project includes data processing, model training, performance evaluation, an
 ---
 
 cmse492_project/
-├── README.md
-├── .gitignore
-├── data/
-│   ├── raw/
-│   └── processed/
-├── notebooks/
-│   └── exploratory/
-├── src/
-│   ├── preprocessing/
-│   ├── models/
-│   └── evaluation/
-├── figures/
-├── docs/
-└── requirements.txt
+-   README.md
+-   .gitignore
+-   data/
+    -   raw/
+    -   processed/
+-   notebooks/
+    -   exploratory/
+-   src/
+    -   preprocessing/
+    -   models/
+    -   evaluation/
+-   figures/
+-   docs/
+-   requirements.txt
 
 ---
 
